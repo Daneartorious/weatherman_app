@@ -53,6 +53,7 @@ class _HomeScreenState extends State<HomeScreen>{
   String _temperature = '--';
   String _humidity = '--';
   String _windSpeed = '--';
+  final String _weatherCondition = '';
   bool _isLoading = false;
 
   final WeatherService _weatherService = WeatherService();
@@ -64,7 +65,7 @@ class _HomeScreenState extends State<HomeScreen>{
   }
 
   Future<void> _fetchWeather(String cityName) async {
-    if (_cityName.isEmpty) return;
+    if (cityName.isEmpty) return;
 
     setState(() {
       _isLoading = true;
@@ -84,10 +85,11 @@ class _HomeScreenState extends State<HomeScreen>{
         setState(() {
           _isLoading = false;
         });
-      } if (mounted){
-        ScaffoldMessenger.of(context).showSnackBar(
+        if (mounted){
+          ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Kota tidak ditemukan.'))
-        );
+          );
+        }
       }
     } catch (e) {
       setState(() {
@@ -102,6 +104,24 @@ class _HomeScreenState extends State<HomeScreen>{
     }
   }
   
+
+  IconData _getWeatherIcon(String condition) {
+    switch (condition.toLowerCase()) {
+      case 'clear':
+        return Icons.wb_sunny;
+      case 'clouds':
+        return Icons.cloud;
+      case 'rain':
+      case 'drizzle':
+        return Icons.water_drop;
+      case 'thunderstorm':
+        return Icons.flash_on;
+      case 'snow':
+        return Icons.ac_unit;
+      default:
+        return Icons.wb_cloudy;
+    }
+  }
   Widget _buildWeatherDetail(String label, String value, IconData icon){
     return Column(
       children: [
@@ -143,9 +163,12 @@ class _HomeScreenState extends State<HomeScreen>{
           children: [
             TextField(
               controller: _cityController,
+              onSubmitted: (value) {
+                _fetchWeather(value);
+              },
               decoration: InputDecoration(
                 hintText: ('Cari kota: '),
-                prefix: Icon(
+                prefixIcon: Icon(
                   Icons.search,
                   color: Theme.of(context).colorScheme.primary,
                   size: 27,
@@ -174,20 +197,20 @@ class _HomeScreenState extends State<HomeScreen>{
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    Icons.cloud,
+                    _getWeatherIcon(_weatherCondition),
                     size: 100,
                     color: Theme.of(context).colorScheme.primary
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    '28°C',
+                    '$_temperature°C',
                     style: TextStyle(
                       fontSize: 64,
                       color: Theme.of(context).colorScheme.primary
                     ),
                   ),
                   Text(
-                  'Kota Depok',
+                  '$_cityName',
                     style: TextStyle(
                       fontSize: 32,
                       color: Theme.of(context).colorScheme.primary
@@ -204,8 +227,8 @@ class _HomeScreenState extends State<HomeScreen>{
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        _buildWeatherDetail('Kelembaban','75%', Icons.water_drop),
-                        _buildWeatherDetail('Angin','10 km/h', Icons.air)
+                        _buildWeatherDetail('Kelembaban','$_humidity%', Icons.water_drop),
+                        _buildWeatherDetail('Angin','$_windSpeed', Icons.air)
                       ],
                     ),
                   )
