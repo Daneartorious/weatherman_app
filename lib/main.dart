@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:weatherman_app/services/weather_service.dart';
 
 
 //main func
@@ -48,12 +49,59 @@ class HomeScreen extends StatefulWidget{
 class _HomeScreenState extends State<HomeScreen>{
   final TextEditingController _cityController = TextEditingController();
 
+  String _cityName = '--';
+  String _temperature = '--';
+  String _humidity = '--';
+  String _windSpeed = '--';
+  bool _isLoading = false;
+
+  final WeatherService _weatherService = WeatherService();
+
   @override
   void dispose(){
     _cityController.dispose();
     super.dispose();
   }
 
+  Future<void> _fetchWeather(String cityName) async {
+    if (_cityName.isEmpty) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try{
+      final data = await _weatherService.fetchWeather(cityName);
+      if (data != null) {
+        setState(() {
+          _cityName = data['name'];
+          _temperature = data['main']['temp'].round().toString();
+          _humidity = data['main']['humidity'].toString();
+          _windSpeed = (data['wind']['speed'] * 3.6).round().toString();
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+      } if (mounted){
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Kota tidak ditemukan.'))
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+        if (mounted){
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString()),
+          ),
+        );
+        }
+    }
+  }
+  
   Widget _buildWeatherDetail(String label, String value, IconData icon){
     return Column(
       children: [
