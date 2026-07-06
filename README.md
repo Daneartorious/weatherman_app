@@ -33,14 +33,25 @@ weatherman_app/
 │   └── icon.png                  # Source Launcher Icon Graphic
 ├── pubspec.yaml                  # Dependency & Asset Configurations
 └── README.md
+```
+
 
 ## 📁 Local Developement Setup
 To run this project locally, ensure you have the Flutter SDK installed on your machine.
 
-*   **git clone [https://github.com/yourusername/weatherman_app.git](https://github.com/yourusername/weatherman_app.git)
-cd weatherman_app
-*   **flutter clean
-*   **flutter pub get
-*   **static const String _apiKey = 'YOUR_API_KEY_HERE';
-*   **flutter run
-*   **flutter build apk --release
+*   **Clone the repository** 
+        - git clone [https://github.com/yourusername/weatherman_app.git](https://github.com/yourusername/weatherman_app.git)
+        cd weatherman_app
+*   **Fetch dependencies**
+        - flutter clean
+        - flutter pub get
+*   **Configure Environment Variables**
+        - Register at OpenWeatherMap to obtain a free API key.
+        - Navigate to lib/services/weather_service.dart.
+        - Inject your API key into the private constant:
+            static const String _apiKey = 'YOUR_API_KEY_HERE';
+*   **Run the application**
+        - flutter run
+
+*   **📦 Building for Production (Android)**
+        - flutter build apk --release
